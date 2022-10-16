@@ -1,7 +1,7 @@
 pipeline
 {
     agent { node { label 'JDK11' } }
-    triggers { cron('17 3 * * *') }
+    triggers { cron('30 5 * * *') }
     stages {
         stage('vcs') {
             steps {
