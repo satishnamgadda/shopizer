@@ -5,9 +5,15 @@ pipeline
     stages {
         stage('vcs') {
             steps {
-                git url: 'https://github.com/satishnamgadda/shopizer.git',
+                git url: 'git@github.com:satishnamgadda/shopizer.git',
                     branch: "release"
             }  
+        }
+         stage('git') {
+            steps {
+                sh 'git checkout release',
+                sh 'git merge develop --no-ff'
+            }
         }
         stage('build') {
             steps {
