@@ -1,28 +1,51 @@
-pipeline
-{
-    agent { node { label 'JDK11' } }
-    triggers { pollSCM('* * * * *') }
+pipeline {
+    agent  { label 'JDK11' }   
     stages {
         stage('vcs') {
             steps {
-                git url: 'https://github.com/satishnamgadda/shopizer.git',
-                    branch: "develop"
-            }  
+                   mail subject: 'build started',
+                     body: 'build started',
+                     to: 'qtdevops@gmail.com'
+                git branch: "store", url: 'https://github.com/satishnamgadda/shopizer.git'
+            }
+
         }
-        stage('build') {
+        stage('artifactory configuaration') {
             steps {
-                sh '/usr/share/maven/bin/mvn package'
+                rtMavenDeployer (
+                   id : "MVN_DEFAULT",
+                   releaseRepo : "shop1-libs-release-local",
+                   snapshotRepo : "shop1-libs-snapshot-local",
+                   serverId : "JFROG-SHOP1"
+                )
+
             }
         }
-        stage('artifacts') {
+        stage('Exec Maven') {
             steps {
-            archiveArtifacts artifacts: 'sm-core/target/*.jar', followSymlinks: false
+                rtMavenRun(
+                    pom : "pom.xml",
+                    goals : "clean install",
+                    tool : "mvn",
+                    deployerId : "MVN_DEFAULT"
+                )
+          
             }
         }
-        stage('results') {
+    //    stage('Build the Code') {
+    //        steps {
+    //           withSonarQubeEnv('SONAR') {
+    //                sh script: 'mvn clean package sonar:sonar'
+    //           }
+    //        }
+    //    }
+        stage('publish build info') {
             steps {
-            junit 'sm-shop/target/surefire-reports/*.xml'
+               rtPublishBuildInfo(
+                serverId : "JFROG-SHOP1"
+               )
             }
         }
     }
+    
 }
