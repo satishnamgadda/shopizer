@@ -14,9 +14,9 @@ pipeline {
             steps {
                 rtMavenDeployer (
                    id : "MVN_DEFAULT",
-                   releaseRepo : "shop1-libs-release-local",
-                   snapshotRepo : "shop1-libs-snapshot-local",
-                   serverId : "JFROG-SHOP1"
+                   releaseRepo : "libs-release-local",
+                   snapshotRepo : "libs-snapshot-local",
+                   serverId : "JFROG_ID"
                 )
 
             }
@@ -32,17 +32,17 @@ pipeline {
           
             }
         }
-    //    stage('Build the Code') {
-    //        steps {
-    //           withSonarQubeEnv('SONAR') {
-    //                sh script: 'mvn clean package sonar:sonar'
-    //           }
-    //        }
-    //    }
+       stage('Build the Code') {
+            steps {
+               withSonarQubeEnv('SONAR') {
+                    sh script: 'mvn clean package sonar:sonar'
+               }
+            }
+        }
         stage('publish build info') {
             steps {
                rtPublishBuildInfo(
-                serverId : "JFROG-SHOP1"
+                serverId : "JFROG_ID"
                )
             }
         }
